@@ -1,0 +1,131 @@
+global:
+  resolve_timeout: 10s
+  #resolve_timeout: 5m
+
+route:
+  group_by: 
+   - namespace
+   - deployment
+   - job
+  group_wait: 5s
+  group_interval: 20s  # Глобальный интервал для всех оповещений
+  repeat_interval: 10s
+  receiver: 'telegram_bot1'
+  routes:
+    - matchers:
+        - alert = HOT-SD_Alert_promo 
+      receiver: 'telegram_bot'
+      continue: true 
+      repeat_interval: 1m
+      routes:
+        - matchers:
+            - timeout = 10m
+          repeat_interval: 10s
+          continue: true 
+          receiver: 'telegram_bot'
+        - matchers:
+            - timeout = 20m
+          repeat_interval: 10s
+          continue: true 
+          receiver: 'telegram_bot'
+        - matchers:
+           - timeout = 7h
+          repeat_interval: 10s
+          continue: true 
+          receiver: 'telegram_bot'
+        - matchers:
+            - mute = tuesday
+          mute_time_intervals:
+            - tuesday
+          continue: true
+          receiver: telegram_bot 
+
+    - matchers:
+        - alert = HOT-SD_Alert_promo_SUCO_Team 
+      receiver: 'telegram_bot'
+      continue: true 
+      repeat_interval: 1m
+    - matchers:
+        - alert = HOT-SD_Alert_promo_SUCO_Team_SAPBasis_SAP_Retail_Team
+      receiver: 'telegram_bot'
+      #continue: true 
+      #repeat_interval: 1m      
+      
+
+time_intervals:
+- name: monday_night
+  time_intervals:
+    - weekdays: [monday]
+      times:
+        - start_time: "22:00"
+          end_time: "23:59"
+      location: 'Europe/Moscow'
+    - weekdays: [tuesday]
+      times:
+        - start_time: "00:00"
+          end_time: "00:45"
+      location: 'Europe/Moscow'
+- name: tuesday
+  time_intervals:
+    - weekdays: [tuesday]
+      times:
+        - start_time: "00:00"
+          end_time: "23:59"
+      location: 'Europe/Moscow'
+
+
+#https://web.telegram.org/a/#8121611518
+receivers:
+- name: 'telegram_bot'
+  telegram_configs:
+  - bot_token: '8121611518:AAFhhJ1hDNaI6JRtS56SXpbMa1vgwdvY4xw'
+    api_url: 'https://api.telegram.org'
+    chat_id: 1285460228
+    parse_mode: 'HTML'
+    send_resolved: false
+- name: 'telegram_bot1'
+  telegram_configs:
+  - bot_token: '8121611518:AAFhhJ1hDNaI6JRtS56SXpbMa1vgwdvY4xw'
+    api_url: 'https://api.telegram.org'
+    chat_id: 1285460221
+    parse_mode: 'HTML'
+
+
+##############################################################################
+
+# #с сервера cat  /etc/promxy/alertmanager.yaml 
+# global:
+#   resolve_timeout: 5m
+#   smtp_smarthost: mail.x5.ru:25
+#   smtp_from: Support_service_co@x5.ru
+
+# receivers:
+# - name: email-default
+#   email_configs:
+#     - to: Support_service_co@x5.ru
+#       send_resolved: false
+#     - to: makszhukov@x5.ru
+#       send_resolved: false
+#    - to: makarova.on@x5.ru
+#      send_resolved: false
+#    - to: aleksey.topchy@x5.ru
+#      send_resolved: false
+
+
+#mail grope
+#labels alert : HOT-SD,Alert_promo,SUCO_Team
+#1 HOT-SD@x5.ru Alert_promo@x5.ru,SUCO_Team@x5.ru
+#3 HOT-SD@x5.ru,Alert_promo@x5.ru,SUCO_Team@x5.ru
+#5-22 HOT-SD@x5.ru,Alert_promo@x5.ru,SUCO_Team@x5.ru
+#25,37 HOT-SD@x5.ru, Alert_promo@x5.ru, SUCO_Team@x5.ru
+
+#labels alert :  HOT-SD,Alert_promo
+#23 HOT-SD@x5.ru, Alert_promo@x5.ru
+#24 HOT-SD@x5.ru, Alert_promo@x5.ru
+#26-35,36,38,39 HOT-SD@x5.ru, Alert_promo@x5.ru
+
+
+#labels alert: HOT-SD,Alert_promo,SUCO_Team,DIS.SAPBasis,SAP_Retail_Team
+#2 HOT-SD@x5.ru,Alert_promo@x5.ru,SUCO_Team@x5.ru, DIS.SAPBasis@x5.ru, SAP_Retail_Team@x5.ru
+#4 HOT-SD@x5.ru,Alert_promo@x5.ru,SUCO_Team@x5.ru, DIS.SAPBasis@x5.ru, SAP_Retail_Team@x5.ru
+

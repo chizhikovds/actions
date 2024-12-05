@@ -1,0 +1,935 @@
+groups:
+#1 HOT-SD <HOT-SD@x5.ru> и Alert_promo <Alert_promo@x5.ru>, общая почта <SUCO_Team@x5.ru> БД.Кликхаус (mn-clkh41.x5.ru)
+  - name: L2Team
+    rules:
+      - alert: ProblemWithCleaningTheData1
+        expr: up{job!~"prometheus"} == 0 #and ON() (hour() == 11 and  (minute() == 57))
+        for: 1s
+        labels:
+          alert: HOT-SD_Alert_promo
+          mute: tuesday
+        annotations:
+          timestamp: >
+            time: {{ with query "time()" }}{{ . | first | value | humanizeTimestamp }}{{ end }}
+          description: Проблема с очисткой БД 
+          summary: |
+            {{ $labels.job }} по адресу {{ $labels.instance }}  
+            1
+
+            alert: HOT-SD_Alert_promo 
+                        default
+
+      - alert: ProblemWithCleaningTheData2
+        expr: up{job=~"prometheus"} == 0
+        for: 1s
+        labels:
+          alert: HOT-SD_Alert_promo
+          timeout: 10m
+        annotations:
+          timestamp: >
+            time: {{ with query "time()" }}{{ . | first | value | humanizeTimestamp }}{{ end }}
+          description: Проблема с очисткой БД 
+          summary: |
+            {{ $labels.job }} по адресу {{ $labels.instance }} 
+            2
+
+            alert: HOT-SD_Alert_promo
+            timeout: 10m
+
+      - alert: ProblemWithCleaningTheData3
+        expr: up{job!~"prometheus"} == 0 #and ON() (hour() == 12 and  minute() >= 12)
+        for: 1s
+        labels:
+          alert: HOT-SD_Alert_promo
+          #timeout: 20m
+          mute: tuesday
+        annotations:
+          timestamp: >
+            time: {{ with query "time()" }}{{ . | first | value | humanizeTimestamp }}{{ end }}
+          description: Проблема с очисткой БД 
+          summary: |
+            Описание алерта: 
+            3
+            сервер с именем {{ $labels.job }} по адресу {{ $labels.instance }} 
+            
+            alert: HOT-SD_Alert_promo
+            timeout: 15m
+
+      - alert: ProblemWithCleaningTheData4
+        expr: up{job!~"prometheus"} == 0 #and ON() (hour() == 12 and  minute() >= 12)
+        for: 1s
+        labels:
+          alert: HOT-SD_Alert_promo
+          timeout: default
+        annotations:
+          timestamp: >
+            time: {{ with query "time()" }}{{ . | first | value | humanizeTimestamp }}{{ end }}
+          description: Проблема с очисткой БД 
+          summary: |
+            Описание алерта: 
+            4
+            сервер с именем {{ $labels.job }} по адресу {{ $labels.instance }} 
+            
+            alert: HOT-SD_Alert_promo_SUCO_Team 
+            timeout: default
+  
+
+  #1 
+  - name: DBAlert
+    rules:
+      - alert: ClickProblemWithCleaningDatabase
+        expr: click_problem_with_cleaning_the_database{count__!="0"} == 0 AND ON() (hour() == 19 AND minute () == 02)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam
+        annotations:
+          summary: Проблема с очисткой БД 
+          description: |
+            Описание алерта: 
+            Проблема с очисткой БД
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+
+            Оповещение сотрудника по схеме выше, БД должна быть очищена до 20:00.
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954021147
+
+            Критичность: высокая    
+#2 
+      - alert: DelayInTheStartOfDownloadingMasterData
+        expr: orchestrator_delay_in_the_start_of_downloading_master_data {count="0"} == 0 AND ON() (hour() == 20 AND minute () == 16)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeamSAPBasisSAPRetailTeam
+        annotations:
+          summary: Задержка старта загрузки мастерданных (по оркестратору СУЦО)
+          description: |
+            Описание алерта: 
+            Задержка старта загрузки мастерданных.
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru+ общая почта SUCO_Team@x5.ru
+            + общие почты DIS.ОП САП <DIS.SAPBasis@x5.ru>, SAP_Retail_Team <SAP_Retail_Team@x5.ru>, SUCO_Team@x5.ru
+             
+            Оповещение сотрудника по схеме выше.
+
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=756913150
+ 
+            Критичность: высокая
+#3 
+      - alert: ErrorWhileLoadingMasterData
+        expr: orchestrator_error_while_loading_master_data != 0 AND ON() ( (hour() == 20) AND (hour() == 21 AND minute() <= 20))
+        for: 1m
+        labels:
+          alert: AlertPromoHotSDSucoTeam
+        annotations:
+          summary: Ошибка при загрузке мастерданных (в базе оркестратора СУЦО)
+          description: |
+            Описание алерта: 
+            Ошибка при загрузке мастерданных (в базе оркестратора СУЦО)
+
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            + общие почты DIS.ОП САП <DIS.SAPBasis@x5.ru>, SAP_Retail_Team <SAP_Retail_Team@x5.ru>, SUCO_Team@x5.ru
+
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=756913150
+
+            Критичность: высокая
+#4 
+      - alert: JobZprcsMasterdataIsRunningLongerThan1Hour
+        expr: orchestrator_job_zprcs_masterdata_is_running_longer_than_1_hour{count="0"} == 0 AND ON() (hour() == 21 AND minute() == 10)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeamSAPBasisSAPRetailTeam
+        annotations:
+          summary: Работа задания ZPRCS_MASTERDATA превышает 1 час
+          description: |
+            Описание алерта: 
+            Работа задания ZPRCS_MASTERDATA превышает 1 час
+
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            + общие почты DIS.ОП САП <DIS.SAPBasis@x5.ru>, SAP_Retail_Team <SAP_Retail_Team@x5.ru> 
+
+            Оповещение сотрудника по схеме выше.
+
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954022982
+
+            Критичность: высокая
+#5 
+      - alert: CalculationInTimeZone0IsLateByACriticalTime 
+        expr: orchestrator_calculation_in_time_zone_0_is_late_by_a_critical_time{tz0!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 2 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam
+        annotations:
+          summary: Расчет по часовой зоне "0" опаздывает на критичное время.
+          description: |
+            Описание алерта: 
+            ПРЕДАВАРИЯ
+            Расчет по часовой зоне "0" опаздывает на критичное время (осталось 4 часа до целевой отметки, в часовой зоне большинство магазинов компании).
+
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+
+            Оповещение сотрудника по схеме выше.
+
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+
+            Критичность: высокая
+#6 
+      - alert: CalculationInTimeZone0WasLate
+        expr: orchestrator_calculation_in_time_zone_0_is_late_by_a_critical_time{tz0!~"^100(\\.0+)?$"}  == 0 AND ON() (hour() == 6 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam
+        annotations:
+          summary: Расчет по часовой зоне 0 опоздал.
+          description: |
+            Описание алерта: 
+            АВАРИЯ
+            Опоздание расчета по часовой зоне "0".
+
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+
+            Оповещение сотрудника по схеме выше.
+
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+
+            Критичность: высокая
+#7 
+      - alert: CalculationInTimeZone1IsLateByACriticalTime
+        expr: orchestrator_calculation_in_time_zone_1_is_late_by_a_critical_time{tz1!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 2 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam
+        annotations:
+          summary: Расчет по часовой зоне 1 опаздывает на критичное время.
+          description: |
+            Описание алерта: 
+            ПРЕДАВАРИЯ
+            Расчет по часовой зоне "1" опаздывает на критичное время (осталось 3 часа до целевой отметки).
+
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+
+            Оповещение сотрудника по схеме выше.
+
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+
+            Критичность: высокая
+#8
+      - alert: CalculationInTimeZone1WasLate
+        expr: orchestrator_calculation_in_time_zone_1_is_late_by_a_critical_time{tz1!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 5 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "1" опоздал.
+          description: |
+            Описание алерта: 
+            АВАРИЯ
+            Опоздание расчета по часовой зоне "1".
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+#9 
+      - alert: CalculationInTimeZone2IsLateByACriticalTime
+        expr: orchestrator_calculation_in_time_zone_2_is_late_by_a_critical_time{tz2!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 1 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне 2 опаздывает на критичное время.
+          description: |
+            Описание алерта: 
+            ПРЕДАВАРИЯ
+            Расчет по часовой зоне "2" опаздывает на критичное время (осталось три часа до критической отметки).
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+
+            Критичность: высокая
+#10 
+      - alert: CalculationInTimeZone2WasLate
+        expr: orchestrator_calculation_in_time_zone_2_is_late_by_a_critical_time{tz2!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 4 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "2" опоздал.
+          description: |
+            Описание алерта: 
+            АВАРИЯ
+            Опоздание расчета по часовой зоне "2".
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+#11 
+      - alert: CalculationInTimeZone3IsLateByACriticalTime
+        expr: orchestrator_calculation_in_time_zone_3_is_late_by_a_critical_time{tz3!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 1 AND minute() == 30)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне 3 опаздывает на критичное время.
+          description: |
+            Описание алерта: 
+            ПРЕДАВАРИЯ
+            Расчет по часовой зоне "3" опаздывает на критичное время (осталось полтора часа до критической отметки).
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+             
+            Оповещение сотрудника по схеме выше.
+             
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+#12 
+      - alert: CalculationInTimeZone3WasLate
+        expr: orchestrator_calculation_in_time_zone_3_is_late_by_a_critical_time{tz3!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 3 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "3" опоздал.
+          description: | 
+            Описание алерта: 
+            АВАРИЯ
+            Опоздание расчета по часовой зоне "3".
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+           
+            Критичность: высокая
+#13 
+      - alert: CalculationInTimeZone4IsLateByACriticalTime
+        expr: orchestrator_calculation_in_time_zone_4_is_late_by_a_critical_time{tz4!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 0 AND minute() == 30)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "4" опаздывает на критичное время.
+          description: |
+            Описание алерта: 
+            ПРЕДАВАРИЯ
+            Расчет по часовой зоне "4" опаздывает на критичное время (осталось полтора часа до критической отметки).
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+#14 
+      - alert: CalculationInTimeZone4WasLate
+        expr: orchestrator_calculation_in_time_zone_4_is_late_by_a_critical_time{tz4!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 2 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "4" опоздал.
+          description: |
+            Описание алерта: 
+            АВАРИЯ
+            Расчет по часовой зоне "4" опоздал.
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+#15 
+      - alert: CalculationInTimeZone5IsLateByACriticalTime
+        expr: orchestrator_calculation_in_time_zone_5_is_late_by_a_critical_time{tz5!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 23 AND minute() == 30)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "5" опаздывает на критичное время.
+          description: |
+            Описание алерта: 
+            ПРЕДАВАРИЯ
+            Расчет по часовой зоне "5" опаздывает на критичное время (осталось полтора часа до критической отметки).
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+#16 
+      - alert: CalculationInTimeZone5WasLate
+        expr: orchestrator_calculation_in_time_zone_5_is_late_by_a_critical_time{tz5!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 1 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "5" опоздал.
+          description: |
+            Описание алерта: 
+            АВАРИЯ
+            Опоздание по часовой зоне "5".
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+#17 
+      - alert: CalculationInTimeZone6IsLateByACriticalTime
+        expr: orchestrator_calculation_in_time_zone_6_is_late_by_a_critical_time{tz6!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 22 AND minute() == 30)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "6" опаздывает на критичное время.
+          description: |
+            Описание алерта: 
+            ПРЕДАВАРИЯ
+            Расчет по часовой зоне "6" опаздывает на критичное время (осталось полтора часа до критической отметки).
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+#18 
+      - alert: CalculationInTimeZone6WasLate
+        expr: orchestrator_calculation_in_time_zone_6_is_late_by_a_critical_time{tz6!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 0 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "6" опоздал.
+          description: |
+            Описание алерта: 
+            АВАРИЯ
+            Расчет по часовой зоне "6" опоздал.
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+#19 
+      - alert: CalculationInTimeZone7IsLateByACriticalTime
+        expr: orchestrator_calculation_in_time_zone_7_is_late_by_a_critical_time{tz7!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 21 AND minute() == 45)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "7" опаздывает на критичное время.
+          description: |
+            Описание алерта: 
+            ПРЕДАВАРИЯ
+            Расчет по часовой зоне "7" опаздывает на критичное время (остался час и 15 минут до критической отметки).
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+#20 
+      - alert: CalculationInTimeZone7WasLate
+        expr: orchestrator_calculation_in_time_zone_7_is_late_by_a_critical_time{tz7!~"^100(\\.0+)?$"} == 0 AND ON() (hour() == 23 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Расчет по часовой зоне "7" опоздал.
+          description: |
+            Описание алерта: 
+            АВАРИЯ
+            Расчет по часовой зоне "7" опоздал.
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954023036
+            
+            Критичность: высокая
+# #21
+#       - alert: FailCalculationsForSalesOneTime
+#         expr: orchestrator_fail_calculations_for_sales_one_time{count!="0"} == 0 AND ON() (hour() >= 20 AND minute() >= 50 OR hour() <= 2 )
+#         for: 10s
+#         labels:
+#           alert: AlertPromoHotSDSucoTeam 
+#         annotations:
+#           summary: Падение расчета (по сбытовой, разовый алерт)
+#           description: |
+#             Описание алерта: 
+#             Падение расчета на ____ шаге ценообразования (по сбытовой №___ разовый алерт)
+            
+#             Эскалация для HOT Line:
+            
+#             Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+#             Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+#             Оповещение сотрудника по схеме выше.
+            
+#             Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=1089153068
+            
+#             Критичность: высокая
+#22
+      - alert: MassiveFailedInCalculation10OrMoreDrops
+        expr: orchestrator_massive_failed_in_calculation_10_or_more_drops{count!~"^([0-9]|10)$"} == 0 AND ON() ((hour() == 20 AND minute() >= 50) OR hour() >= 21 OR hour() <= 2)
+        for: 1m
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+          timeout: 12h
+        annotations:
+          summary: Массовое падение расчета (10 и более падений)
+          description: |
+            Описание алерта: 
+            Падение расчета (массовое)
+            
+            Эскалация для HOT Line:
+            
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкция для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=733638034 
+            
+            Критичность: высокая
+#23
+      - alert: UnreceivedAleaudsFromHermesStoresAreMoreThan30%OfThoseSent
+        expr: click_unreceived_aleauds_from_hermes_stores_are_more_than_30_of_those_sent {percent!~"^(30\\.00|[0-2]?[0-9](\\.\\d{1,2})?)$"} == 0 AND ON() (hour() == 0 AND minute() == 45)
+        for: 10s
+        labels:
+          alert:  HOT-SD_Alert_promo
+        annotations:
+          summary: Неполученных алеаудов по магазинам HERMES более, чем 30% от отправленных
+          description: |
+            Описание алерта: 
+            Неполученных алеаудов по магазинам HERMES более, чем 30% от отправленных 
+            
+            Эскалация для HOT Line:
+            
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=649472333
+            
+            Критичность: высокая
+#24
+      - alert: NumberOfUnreceivedAleaudsForARegularStreamIsMoreThan3000
+        expr: click_number_of_unreceived_aleauds_for_a_regular_stream_is_more_than_3000{count__!~"[0-2]..."} == 0 AND ON() (hour() == 0 AND minute() == 45)
+        for: 10s
+        labels:
+          alert:  HOT-SD_Alert_promo
+        annotations:
+          summary: Количество неполученных алеаудов по обычному потоку более 3000
+          description: |
+            Описание алерта: 
+            Количество неполученных алеаудов по обычному потоку более 3000
+            
+            Эскалация для HOT Line:
+            
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=649472333
+            
+            Критичность: высокая
+#25
+      - alert: NotAllStoresOnHermesHaveShippingLogs
+        expr: click_not_all_stores_on_hermes_have_shipping_logs{uniqExact_WERKS_!~"^[0-2][0-9]|25"} == 0 AND ON() (hour() == 0 AND minute() == 45)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSDSucoTeam 
+        annotations:
+          summary: Не у всех магазинов на HERMES есть логи отправки. Время алерта 
+          description: |
+            На текущий момент присутствуют магазины на HERMES, у которых нет логов отправки цен
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=649474804
+            Критичность: высокая
+# #26 
+#       - alert: HowManyCirculationWerksCalculated_21.00-23.59
+#         expr: click_how_many_circulation_werks_calculated{uniqExact_WERKS_=~"[0-2][0-4]..."} != 0 
+#         for: 5m
+#         labels:
+#           alert:  HOT-SD_Alert_promo
+#         annotations:
+#           summary: Скорость работы оутпута (отправки цен) отличается от нормальной 
+#           description: |
+#             Описание алерта: 
+#             Скорость работы оутпута (отправки цен) отличается от нормальной (Отставание от посчитанных цен более, чем на 2500 магазинов)
+            
+#             Эскалация для HOT Line:
+#             Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+#             Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+#             Оповещение сотрудника по схеме выше.
+            
+#             Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=649474804
+#             Критичность: высокая
+# #27
+#       - alert: HowManyCirculationWerksCalculated_24.00-02.00
+#         expr: click_how_many_circulation_werks_calculated{uniqExact_WERKS_=~"[0-2][0-4]..."} != 0 
+#         for: 5m
+#         labels:
+#           alert: AlertPromoHotSD
+#           timeout: 20m
+#         annotations:
+#           summary: Скорость работы оутпута (отправки цен) отличается от нормальной 
+#           description: |
+#             Описание алерта: 
+#             Скорость работы оутпута (отправки цен) отличается от нормальной (Отставание от посчитанных цен более, чем на 2500 магазинов)
+            
+#             Эскалация для HOT Line:
+#             Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+#             Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+#             Оповещение сотрудника по схеме выше.
+            
+#             Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=649474804
+#             Критичность: высокая
+#28 
+      - alert: HowManyPriceConditionsWithErrorsWereNotSavedSuccessfullyAsAResultOfReverseIntegration 
+        expr: click_how_many_price_conditions_with_errors_were_not_saved_successfully_as_a_result_of_reverse_integration{count__!~"^(0|[1-9][0-9]?|[12][0-9]{2}|300)$"} == 0 AND ON () (hour() >= 21 OR hour() <= 1 )
+        for: 1m
+        labels:
+          alert: AlertPromoHotSD
+          timeout: 12h
+        annotations:
+          summary: Большое количество ошибок в рамках обратной интеграции (более 300 шт.)
+          description: |
+            Описание алерта: 
+            Большое количество ошибок в рамках обратной интеграции (более 300 шт.)
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954021468
+            
+            Критичность: высокая
+#29 
+      - alert: NumberOfZfinThatAreSentToSapErpProd1_3.5M-4.0M
+        expr: click_number_of_zfin_that_are_sent_to_sap_erp_prod1{Number_of_ZFIN_sent=~"^3[5-9][0-9]{5}$"} == 0 and ON() (day_of_week () == 1 AND (hour() == 22 AND minute() == 00)) 
+        for: 10s
+        labels:
+          alert: AlertPromoHotSD
+        annotations:
+          summary: Количество сформированных Zfin превышает средние значения (3 500 000)
+          description: |
+            Описание алерта: 
+            Количество сформированных Zfin превышает средние значения (3 500 000)
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=1091108980
+            
+            Критичность: высокая
+#30 
+      - alert: NumberOfZfinSentToSap_7.5M-9M
+        expr: click_number_of_zfin_that_are_sent_to_sap_erp_prod1{Number_of_ZFIN_sent=~"^(7[5-9][0-9]{5}|8[0-9]{6})$"} == 0 and ON() (day_of_week () == 1 AND (hour() == 23 AND minute() == 00))
+        for: 10s
+        labels:
+          alert: AlertPromoHotSD
+        annotations:
+          summary: Количество сформированных Zfin превышает средние значения (7 500 000)
+          description: |
+            Описание алерта: 
+            Количество сформированных Zfin превышает средние значения (7 500 000)
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=1091108980
+            
+            Критичность: высокая
+#31 
+      - alert: NumberOfZfinSentToSapOwer_9_Milion
+        expr: click_number_of_zfin_that_are_sent_to_sap_erp_prod1{Number_of_ZFIN_sent=~"^9[0-9]{6,}$|^[1-9][0-9]{7,}$"} == 0 AND ON() (hour() == 0 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSD
+          active: monday
+        annotations:
+          summary: Количество сформированных Zfin превышает средние значения (9 000 000)
+          description: |
+            Описание алерта: 
+            Количество сформированных Zfin превышает средние значения (9 000 000)
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=1091108980
+            
+            Критичность: высокая
+#32 
+      - alert: NumberOfZfinThatAreSentToSapErpProd1_2.5M-3.5M
+        expr: click_number_of_zfin_that_are_sent_to_sap_erp_prod1{Number_of_ZFIN_sent=~"^(2[5-9][0-9]{5}|3[0-4][0-9]{5})$"} == 0 AND ON() (hour() == 22 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSD
+          mute: monday
+        annotations:
+          summary: Количество сформированных Zfin превышает средние значения (2 500 000)
+          description: |
+            Описание алерта: 
+            Количество сформированных Zfin превышает средние значения (2 500 000)
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=1091108980
+            
+            Критичность: высокая
+#33
+      - alert: NumberOfZfinThatAreSentToSapErpProd1_4.0M-4.5M
+        expr: click_number_of_zfin_that_are_sent_to_sap_erp_prod1{Number_of_ZFIN_sent=~"^4[0-4][0-9]{5}$"} == 0 AND ON() (hour() == 23 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSD
+          mute: monday
+        annotations:
+          summary: Количество сформированных Zfin превышает средние значения (4 000 000)
+          description: |
+            Описание алерта: 
+            Количество сформированных Zfin превышает средние значения (4 000 000)
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=1091108980
+            
+            Критичность: высокая
+#34
+      - alert: NumberOfZfinThatAreSentToSapErpProd1_4.5M-7.5M
+        expr: click_number_of_zfin_that_are_sent_to_sap_erp_prod1{Number_of_ZFIN_sent=~"^(4[0-9]{6}|5[0-9]{6}|6[0-9]{6}|7[0-4][0-9]{5})$"} == 0 AND ON() (hour() == 0 AND minute() == 00)
+        for: 10s
+        labels:
+          alert: AlertPromoHotSD
+          mute: monday
+        annotations:
+          summary: Количество сформированных Zfin превышает средние значения (4 500 000)
+          description: |
+            Описание алерта: 
+            Количество сформированных Zfin превышает средние значения (4 500 000)
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=1091108980
+            
+            Критичность: высокая
+#35         ( day_of_week() == 1 and ( (hour() == 22 and minute () == 00) OR (hour() == 23 and minute () == 00) ) OR (day_of_week () == 2 and (hour() == 00 and minute () == 45)))
+      - alert: NumberOfHermesStoresWithLargeRevaluationHasBeenExceededMoreThan_1_MondayTuesday
+        expr: click_number_of_hermes_stores_with_large_revaluation_has_been_exceeded_more_than_1{count__!~"^([0-9]{1,3}|1[0-9]{3}|2000)$"} == 0 and ON () ((hour() == 00 AND minute() == 00) OR (hour() == 00 AND minute() == 45) OR (hour() == 22 AND minute() == 00) OR (hour() == 23 and minute() == 00)) 
+        for: 10s
+        labels:
+          alert: AlertPromoHotSD
+          active: monday_night
+        annotations:
+          summary: Количество магазинов Гермес с большой переоценкой превышает средние значения
+          description: |
+            Описание алерта: 
+            Количество магазинов Гермес с большой переоценкой превышает средние значения
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+           
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=1091108997
+             
+            Критичность: высокая
+#36 
+      - alert: NumberOfHermesStoresWithLargeRevaluationHasBeenExceededMoreThan_1
+        expr: click_number_of_hermes_stores_with_large_revaluation_has_been_exceeded_more_than_1{count__!~"^([0-9]{1,3}|1[0-9]{3}|2000)$"} == 0 AND ON () ((hour() == 00 AND minute() == 00) OR (hour() == 00 AND minute() == 45) OR (hour() == 22 AND minute() == 00) OR (hour() == 23 and minute() == 00))
+        for: 10s
+        labels:
+          alert: AlertPromoHotSD
+          mute: monday_night
+        annotations:
+          summary: Количество магазинов Гермес с большой переоценкой превышает средние значения
+          description: |
+            Описание алерта: 
+            Количество магазинов Гермес с большой переоценкой превышает средние значения
+            
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+            Оповещение сотрудника по схеме выше.
+            
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=1091108997
+            
+            Критичность: высокая
+
+# #37 
+#       - alert: 
+#         expr: 
+#         for: 1m
+#         labels:
+#           alert: AlertPromoHotSDSucoTeam 
+#         annotations:
+#           summary: Не у всех магазинов по обычному потоку есть логи отправки
+#           description: |
+#             Описание алерта: 
+#             У магазинов №___№___№___ отсутствуют логи отправки (обычный поток)
+            
+#             Эскалация для HOT Line:
+#             Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+#             Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+#             Оповещение сотрудника по схеме выше.
+            
+#             Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=649474804
+            
+#             Критичность: высокая
+
+#38 
+      - alert: ReverseIntegration
+        expr:  (
+          click_reverse_integration_zkp0{count__!="0"} == 0 or
+          click_reverse_integration_zpur{count__!="0"} == 0 or
+          click_reverse_integration_znb2{count__!="0"} == 0 or
+          click_reverse_integration_znc1{count__!="0"} == 0 or
+          click_reverse_integration_znc2{count__!="0"} == 0 or
+          click_reverse_integration_zlin{count__!="0"} == 0 or
+          click_reverse_integration_zfin{count__!="0"} == 0 or
+          click_reverse_integration_zb20{count__!="0"} == 0 
+          ) and ON() (hour() == 00 and minute() == 45 )          
+        for: 10s
+        labels:
+          alert: AlertPromoHotSD
+        annotations:
+          summary: Имеются ЦУ, не отправленные в SAP в рамках обратной интеграции
+          description: |
+            Описание алерта: 
+            Имеются ЦУ, не отправленные в SAP в рамках обратной интеграции
+           
+            Эскалация для HOT Line:
+            Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+            Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+           
+            Оповещение сотрудника по схеме выше.
+           
+            Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954021468
+           
+            Критичность: средняя
+# #39 
+#       - alert: 
+#         expr: 
+#         for: 1m
+#         labels:
+#           alert: AlertPromoHotSD
+#         annotations:
+#           summary: Не все ЦУ в рамках обратной интеграции сохранены в SAP
+#           description: |
+#             Описание алерта: 
+#             Не все ЦУ в рамках обратной интеграции сохранены в SAP
+            
+#             Эскалация для HOT Line:
+#             Соболев Евгений (Ev.Sobolev@x5.ru), Падыганов Александр (Aleksa.Padyganov@x5.ru)
+
+#             Новиков Иван (IvNovikov@x5.ru), Батаев Тимур (Timur.Bataev@x5.ru), общая почта Support_service_co@x5.ru + общая почта SUCO_Team@x5.ru
+            
+#             Оповещение сотрудника по схеме выше.
+            
+#             Инструкции для L2: https://wiki.x5.ru/pages/viewpage.action?pageId=954021468
+            
+#             Критичность: средняя
