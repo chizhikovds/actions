@@ -1,0 +1,28 @@
+name: Docker Compose Lint and Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install docker-compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Lint docker-compose
+        run: |
+          docker-compose -f docker-compose.yaml -p lint
+          docker-compose -f docker-compose.yaml -p lint --strict
+
+      - name: Run docker-compose
+        run: |
+          docker-compose -f docker-compose.yaml up -d
+          docker-compose -f docker-compose.yaml ps
