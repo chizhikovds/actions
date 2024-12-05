@@ -18,11 +18,11 @@ jobs:
           sudo apt-get install -y docker-compose
 
       - name: Lint docker-compose
-        run: |
-          docker compose -f docker-compose.yaml -p lint
-          docker compose -f docker-compose.yaml -p lint --strict
+        uses: sjafferali/docker-compose-lint-action@v0.1.2
+        with:
+          compose-file: './docker-compose.yaml'
 
       - name: Run docker-compose
         run: |
           docker compose -f docker-compose.yaml up -d
-          docker compose -f docker-compose.yaml ps
+          docker-compose -f docker-compose.yaml ps
