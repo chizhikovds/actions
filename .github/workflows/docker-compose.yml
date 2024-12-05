@@ -19,10 +19,10 @@ jobs:
 
       - name: Lint docker-compose
         run: |
-          docker-compose -f docker-compose.yaml -p lint
-          docker-compose -f docker-compose.yaml -p lint --strict
+          docker compose -f docker-compose.yaml -p lint
+          docker compose -f docker-compose.yaml -p lint --strict
 
       - name: Run docker-compose
         run: |
-          docker-compose -f docker-compose.yaml up -d
-          docker-compose -f docker-compose.yaml ps
+          docker compose -f docker-compose.yaml up -d
+          docker compose -f docker-compose.yaml ps
